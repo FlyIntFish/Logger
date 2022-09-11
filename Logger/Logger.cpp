@@ -61,6 +61,11 @@ void Logger::checkBuffer()
 	}
 }
 
+std::string Logger::createLogBegin() const
+{
+	return std::string{ std::format("[{}] {}", name, getTime()) };
+}
+
 void Logger::handleOutputWrite(const std::string& str) const
 {
 	if (isWritingToOutputEnabled())
@@ -71,7 +76,7 @@ Logger::LineBreaker Logger::operator<<(const std::string& s) {
 	checkBuffer();
 	if (isWritingToOutputEnabled())
 		lastBufferSize = buffer.size();
-	return LineBreaker(*this) << getTime() << " " << s;
+	return LineBreaker(*this) << createLogBegin() << " " << s;
 }
 
 Logger::LineBreaker::LineBreaker(LineBreaker&& rval) noexcept : parent(rval.parent)
@@ -96,6 +101,5 @@ Logger::LineBreaker Logger::LineBreaker::operator<<(const std::string& s)
 	parent.buffer.insert(parent.buffer.end(), s.begin(), s.end());
 	return std::move(*this);
 }
-
 
 } // Log

@@ -36,17 +36,11 @@ class Logger
 	bool appendToFiles = false;
 
 	[[nodiscard]] static std::string getTime();
+	inline void clearBuffer()											{ buffer.clear(); }
 	void checkBuffer();
-	/*
-	struct SharedFile
-	{
-		unsigned references = 1;
-		std::ofstream file;
-		SharedFile(const std::string& filename);
-		SharedFile(const SharedFile& copy);
-		SharedFile(SharedFile&& rval);
-		~SharedFile();
-	};*/
+	void writeToOfstream();
+	void handleOutputWrite(const std::string & str) const;
+	[[nodiscard]] std::string createLogBegin() const;
 
 	struct LineBreaker
 	{
@@ -57,6 +51,8 @@ class Logger
 		LineBreaker(LineBreaker&& rval) noexcept;
 		~LineBreaker();
 		LineBreaker operator<<(const std::string& s);
+		template <typename T>
+		LineBreaker operator<<(const T& val);
 	};
 	
 	friend LineBreaker;
@@ -68,7 +64,6 @@ public:
 	
 	[[nodiscard]] inline bool shouldWriteToFile() const					{ return buffer.size() >= flushWhenSizeWasReached; }
 
-	inline void clearBuffer()											{ buffer.clear(); }
 	inline void setBufferSize(unsigned newSize)							{ buffer.reserve(newSize); }
 	[[nodiscard]] inline auto getBufferSize() const						{ return buffer.capacity(); }
 
@@ -84,8 +79,9 @@ public:
 	inline void setOutput(std::ostream& out)							{ output = &out; }
 	[[nodiscard]] bool isWritingToOutputEnabled() const					{ return writingToOutputEnabled; }
 
-	void writeToOfstream();
-	void handleOutputWrite(const std::string & str) const;
+
+	template <typename T>
+	LineBreaker operator<<(const T& val);
 	LineBreaker operator<<(const std::string& s);
 
 	template <typename T>
@@ -119,7 +115,7 @@ void Logger::message(const std::string& formatter, Args&&... args)
 {
 	checkBuffer();
 	std::string extendedFormatter = "{} " + formatter + "\n";
-	std::string constructedMessage = std::format(extendedFormatter, getTime(), std::forward<Args>(args)...);
+	std::string constructedMessage = std::format(extendedFormatter, createLogBegin(), std::forward<Args>(args)...);
 	buffer.insert(buffer.end(), constructedMessage.begin(), constructedMessage.end());
 	handleOutputWrite(constructedMessage);
 }
@@ -127,65 +123,62 @@ void Logger::message(const std::string& formatter, Args&&... args)
 
 template <typename... Args>
 void Logger::debug(const std::string& formatter, Args&&... args){
-	message("{:11}" + formatter, DEBUG, std::forward<Args>(args)...);
+	message("{}" + formatter, DEBUG, std::forward<Args>(args)...);
 }
 
 
 template <typename... Args>
 void Logger::info(const std::string& formatter, Args&&... args){
-	message("{:11}" + formatter, INFO, std::forward<Args>(args)...);
+	message("{}" + formatter, INFO, std::forward<Args>(args)...);
 }
 
 
 template <typename... Args>
 void Logger::trace(const std::string& formatter, Args&&... args){
-	message("{:11}" + formatter, TRACE, std::forward<Args>(args)...);
+	message("{}" + formatter, TRACE, std::forward<Args>(args)...);
 }
 
 
 template <typename... Args>
 void Logger::warning(const std::string& formatter, Args&&... args){
-	message("{:11}" + formatter, WARNING, std::forward<Args>(args)...);
+	message("{}" + formatter, WARNING, std::forward<Args>(args)...);
 }
 
 
 template <typename... Args>
 void Logger::error(const std::string& formatter, Args&&... args){
-	message("{:11}" + formatter, ERROR, std::forward<Args>(args)...);
+	message("{}" + formatter, ERROR, std::forward<Args>(args)...);
 }
 
 
 template <typename... Args>
 void Logger::critical(const std::string& formatter, Args&&... args){
-	message("{:11}" + formatter, CRITICAL, std::forward<Args>(args)...);
+	message("{}" + formatter, CRITICAL, std::forward<Args>(args)...);
 }
+
+template <typename T>
+Logger::LineBreaker Logger::operator<<(const T& val)
+{
+	return this->operator<<(asString(val));
+}
+
+template <typename T>
+Logger::LineBreaker Logger::LineBreaker::operator<<(const T& val)
+{
+	return this->operator<<(asString(val));
+}
+
 
 template <typename T>
 [[nodiscard]] static std::string Logger::asString(T&& value)
 {
 	if constexpr (std::is_same<std::decay<T>::type, const char*>::value || std::is_same<T, std::string>::value)
 		return value;
-	if constexpr (std::is_same<T, char>::value || std::is_same<T, wchar_t>::value)
+	if constexpr (std::is_same<std::decay<T>::type, char>::value || std::is_same<std::decay<T>::type, wchar_t>::value)
 		return { value };
-	if constexpr (std::is_arithmetic<T>::value)
+	if constexpr (std::is_arithmetic<std::decay<T>::type>::value)
 		return std::to_string(value);
 	return "<UNSUPPORTED TYPE>";
 }
 
 }	//Log
-
-
-
-/*
-template <typename... Args>
-void Logger::message(Args&&... args)
-{
-	std::string formatter;
-	formatter.reserve((sizeof...(args)+2) * 3 + 2);
-	for (auto i = 0; i < sizeof...(args); i++)
-		formatter += "{} ";
-	formatter += "{}\n";
-	std::string constructedMessage = std::format(formatter, getTime(), std::forward<Args>(args)...);
-	buffer.insert(buffer.end(), constructedMessage.begin(), constructedMessage.end());
-}
-*/
