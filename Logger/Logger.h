@@ -10,6 +10,7 @@
 
 namespace Log{
 
+	
 	constexpr auto DEBUG =		"[debug] ";
 	constexpr auto INFO =		"[info] ";
 	constexpr auto TRACE =		"[trace] ";
@@ -21,7 +22,7 @@ namespace Log{
 
 class Logger
 {
-	static unsigned constexpr defaultBufferSize = 8192u;
+	static unsigned constexpr DEFAULT_BUFFER_SIZE = 8192u;
 	static std::string defaultPathToLogs;
 
 	std::string name;
@@ -36,6 +37,16 @@ class Logger
 
 	[[nodiscard]] static std::string getTime();
 	void checkBuffer();
+	/*
+	struct SharedFile
+	{
+		unsigned references = 1;
+		std::ofstream file;
+		SharedFile(const std::string& filename);
+		SharedFile(const SharedFile& copy);
+		SharedFile(SharedFile&& rval);
+		~SharedFile();
+	};*/
 
 	struct LineBreaker
 	{
@@ -51,7 +62,7 @@ class Logger
 	friend LineBreaker;
 
 public:
-	explicit Logger(const std::string& name, bool appendToFiles = false, unsigned bufferSize = defaultBufferSize);
+	explicit Logger(const std::string& name, bool appendToFiles = false, unsigned bufferSize = DEFAULT_BUFFER_SIZE);
 	~Logger();
 
 	

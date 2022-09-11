@@ -28,7 +28,8 @@ Logger::Logger(const std::string& name_, bool appendToFiles_, unsigned bufferSiz
 Logger::~Logger()
 {
 	writeToOfstream();
-	file.close();
+	if(file.is_open())
+		file.close();
 }
 
 void Logger::writeToOfstream(){
@@ -67,7 +68,7 @@ void Logger::handleOutputWrite(const std::string& str) const
 }
 
 Logger::LineBreaker Logger::operator<<(const std::string& s) {
-	void checkBuffer();
+	checkBuffer();
 	if (isWritingToOutputEnabled())
 		lastBufferSize = buffer.size();
 	return LineBreaker(*this) << getTime() << " " << s;
@@ -82,7 +83,7 @@ Logger::LineBreaker::~LineBreaker() {
 	if (!passed)
 	{
 		parent.buffer.push_back('\n');
-		if (parent.lastBufferSize)
+		if (parent.isWritingToOutputEnabled())
 		{
 			size_t messageLen = parent.buffer.size() - parent.lastBufferSize;
 			parent.output->write( &parent.buffer[parent.lastBufferSize], messageLen);
