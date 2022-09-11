@@ -8,9 +8,10 @@
 #include <type_traits>
 #include <time.h>
 
+#define nameof(x) #x
+
 namespace Log{
 
-	
 	constexpr auto DEBUG =		"[debug] ";
 	constexpr auto INFO =		"[info] ";
 	constexpr auto TRACE =		"[trace] ";
@@ -36,7 +37,7 @@ class Logger
 	bool appendToFiles = false;
 
 	[[nodiscard]] static std::string getTime();
-	inline void clearBuffer()											{ buffer.clear(); }
+	void clearBuffer();
 	void checkBuffer();
 	void writeToOfstream();
 	void handleOutputWrite(const std::string & str) const;
@@ -59,6 +60,8 @@ class Logger
 
 public:
 	explicit Logger(const std::string& name, bool appendToFiles = false, unsigned bufferSize = DEFAULT_BUFFER_SIZE);
+	Logger(const Logger&) = delete;
+	Logger(Logger&& rval) = delete;
 	~Logger();
 
 	

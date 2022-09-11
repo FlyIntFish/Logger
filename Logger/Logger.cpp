@@ -72,6 +72,11 @@ void Logger::handleOutputWrite(const std::string& str) const
 		*output << str;
 }
 
+void Logger::clearBuffer() 
+{ 
+	buffer.clear();
+}
+
 Logger::LineBreaker Logger::operator<<(const std::string& s) {
 	checkBuffer();
 	if (isWritingToOutputEnabled())
