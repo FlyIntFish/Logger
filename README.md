@@ -1,5 +1,5 @@
 # Logger
-Simple logger for projects
+Simple logger for various projects.
 
 ## C++ standard
 Logger uses *format* library (successor of *fmt*) and requires C++20.
