@@ -59,8 +59,17 @@ There are 6 tags available to log:
   * critical
 
 ### 4. Wait, what's unsupported type?
-<UNSUPPORTED TYPE> is string placed to the log if object that we try to print using operator<< can't be easily converted to string.
+**UNSUPPORTED TYPE** is string placed to the log if object that we try to print using operator<< can't be easily converted to string.
 ```cpp
 std::vector<int> vec{1, 2, 3};
 myLogger << Log::TRACE << "in vector vec: " << vec;
+```
+### 5. Other helpful functions
+```cpp
+Log::Logger::setDefaultPathToLogs("./Logs");
+myLogger.setWriteToOutput(true);
+myLogger.setOutput(std::cerr);
+myLogger.setBufferSize(10240);
+int someVariable = 10;
+myLogger.info("{} = {}", nameof(someVariable), someVariable);
 ```
