@@ -59,7 +59,7 @@ class Logger
 	friend LineBreaker;
 
 public:
-	explicit Logger(const std::string& name, bool appendToFiles = false, unsigned bufferSize = DEFAULT_BUFFER_SIZE);
+	explicit Logger(const std::string& name, bool appendToFiles = false, unsigned bufferSize = DEFAULT_BUFFER_SIZE, const std::string& pathToLogsDir = defaultPathToLogs);
 	Logger(const Logger&) = delete;
 	Logger(Logger&& rval) = delete;
 	~Logger();
@@ -70,8 +70,6 @@ public:
 	inline void setBufferSize(unsigned newSize)							{ buffer.reserve(newSize); }
 	[[nodiscard]] inline auto getBufferSize() const						{ return buffer.capacity(); }
 
-	inline void setPathToLogs(std::string&& path)						{ pathToLogs = std::move(path); }
-	inline void setPathToLogs(const std::string& path)					{ pathToLogs = path; }
 	[[nodiscard]] inline const auto& getPathToLogs() const				{ return pathToLogs; }
 
 	inline static void setDefaultPathToLogs(std::string&& path)			{ defaultPathToLogs = std::move(path); }

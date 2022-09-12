@@ -4,9 +4,9 @@ namespace Log
 
 std::string Logger::defaultPathToLogs = std::filesystem::current_path().string();
 
-Logger::Logger(const std::string& name_, bool appendToFiles_, unsigned bufferSize) :
+Logger::Logger(const std::string& name_, bool appendToFiles_, unsigned bufferSize, const std::string& pathToLogsDir) :
 	name(name_),
-	pathToLogs(defaultPathToLogs),
+	pathToLogs(pathToLogsDir),
 	appendToFiles(appendToFiles_)
 {
 	if (bufferSize < MIN_BUFFER_SIZE)
