@@ -42,6 +42,10 @@ class Logger
 	void writeToOfstream();
 	void handleOutputWrite(const std::string & str) const;
 	[[nodiscard]] std::string createLogBegin() const;
+	[[nodiscard]] bool shouldWriteToFile() const;
+
+	template <typename T>
+	[[nodiscard]] static std::string asString(T&& value);
 
 	struct LineBreaker
 	{
@@ -64,29 +68,19 @@ public:
 	Logger(Logger&& rval) = delete;
 	~Logger();
 
-	
-	[[nodiscard]] inline bool shouldWriteToFile() const					{ return buffer.size() >= flushWhenSizeWasReached; }
-
-	inline void setBufferSize(unsigned newSize)							{ buffer.reserve(newSize); }
-	[[nodiscard]] inline auto getBufferSize() const						{ return buffer.capacity(); }
-
-	[[nodiscard]] inline const auto& getPathToLogs() const				{ return pathToLogs; }
-
-	inline static void setDefaultPathToLogs(std::string&& path)			{ defaultPathToLogs = std::move(path); }
-	inline static void setDefaultPathToLogs(const std::string& path)	{ defaultPathToLogs = path; }
-	[[nodiscard]] inline static const auto& getDefaultPathToLogs()		{ return defaultPathToLogs; }
-
-	inline void setWriteToOutput(bool flag)								{ writingToOutputEnabled = flag; }
-	inline void setOutput(std::ostream& out)							{ output = &out; }
-	[[nodiscard]] bool isWritingToOutputEnabled() const					{ return writingToOutputEnabled; }
-
+	static void setDefaultPathToLogs(std::string&& path);
+	static void setDefaultPathToLogs(const std::string& path);
+	[[nodiscard]] size_t getBufferSize() const;
+	[[nodiscard]] const std::string& getPathToLogs() const;
+	[[nodiscard]] bool isWritingToOutputEnabled() const;
+	[[nodiscard]] static const std::string& getDefaultPathToLogs();
+	void setBufferSize(unsigned newSize);
+	void setWriteToOutput(bool flag);
+	void setOutput(std::ostream& out);
 
 	template <typename T>
 	LineBreaker operator<<(const T& val);
 	LineBreaker operator<<(const std::string& s);
-
-	template <typename T>
-	[[nodiscard]] static std::string asString(T&& value);
 
 	template <typename... Args>
 	void message(const std::string& formatter, Args&&... args);

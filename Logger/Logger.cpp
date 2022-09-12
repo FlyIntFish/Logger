@@ -32,6 +32,51 @@ Logger::~Logger()
 		file.close();
 }
 
+void Logger::setBufferSize(unsigned newSize)
+{
+	buffer.reserve(newSize);
+}
+
+size_t Logger::getBufferSize() const
+{
+	return buffer.capacity();
+}
+
+const std::string& Logger::getPathToLogs() const
+{
+	return pathToLogs;
+}
+
+void Logger::setDefaultPathToLogs(std::string&& path)
+{
+	defaultPathToLogs = std::move(path);
+}
+
+void Logger::setDefaultPathToLogs(const std::string& path)
+{
+	defaultPathToLogs = path;
+}
+
+const std::string& Logger::getDefaultPathToLogs()
+{
+	return defaultPathToLogs;
+}
+
+void Logger::setWriteToOutput(bool flag)
+{
+	writingToOutputEnabled = flag;
+}
+
+void Logger::setOutput(std::ostream& out)
+{
+	output = &out;
+}
+
+bool Logger::isWritingToOutputEnabled() const
+{
+	return writingToOutputEnabled;
+}
+
 void Logger::writeToOfstream(){
 	file.write(&buffer[0], buffer.size());
 }
@@ -64,6 +109,11 @@ void Logger::checkBuffer()
 std::string Logger::createLogBegin() const
 {
 	return std::string{ std::format("[{}] {}", name, getTime()) };
+}
+
+bool Logger::shouldWriteToFile() const
+{
+	return buffer.size() >= flushWhenSizeWasReached;
 }
 
 void Logger::handleOutputWrite(const std::string& str) const
