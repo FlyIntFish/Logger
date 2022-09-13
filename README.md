@@ -16,9 +16,9 @@ Let's take a look at the constructor:
 Log::Logger myLogger ("test_logger", true, 10240);
 ```
 
-*"test_logger"* - name of logger
-*true* - flag representing appending to file
-*10240* - size of buffer
+- *"test_logger"* - name of logger
+- *true* - flag representing appending to file
+- *10240* - size of buffer
 
 In this case there will be created logger with *test_logger* name (and so will be named the output file). 
 
